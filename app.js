@@ -4,6 +4,8 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
+const expressValidator = require('express-validator');
+var cookieParser = require('cookie-parser')
 dotenv.config();
 
 // db
@@ -23,13 +25,33 @@ mongoose
     console.log(error);
   });
 
-// bring in routes
+// bring in routes;
 const postRoutes = require("./routes/post");
+const authRoutes = require("./routes/auth");
+const userRoutes = require('./routes/user');
 
 // middlewares
 app.use(morgan("dev"));
-app.use("/", postRoutes);
 app.use(bodyParser.json());
+// app.use(express.json());
+// app.use(express.urlencoded());
+app.use(cookieParser());
+app.use(expressValidator());
+app.use("/", postRoutes);
+app.use("/", authRoutes);
+app.use("/", userRoutes);
+app.use(function (err, req, res, next) {
+  handleUnauthorizedLogin(err, req, res, next)
+});
+
+function handleUnauthorizedLogin(err, req, res, next) {
+  if (err.name === 'UnauthorizedError') {
+    res.status(401).json({
+      error: "Unauthorized"
+    });
+  }
+  next();
+}
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
