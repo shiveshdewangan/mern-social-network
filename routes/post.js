@@ -20,7 +20,7 @@ const {
 
 const router = express.Router();
 
-router.get("/", getPosts);
+router.get("/posts", getPosts);
 router.post("/post/new/:userId", requireSignin, createPost, createPostValidator);
 router.get("/posts/by/:userId", requireSignin, postsByUser);
 router.put('/post/:postId', requireSignin, isPoster, updatePost);
